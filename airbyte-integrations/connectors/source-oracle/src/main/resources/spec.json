@@ -4,7 +4,7 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "Oracle Source Spec",
     "type": "object",
-    "required": ["host", "port", "sid", "username"],
+    "required": ["host", "port", "username"],
     "properties": {
       "host": {
         "title": "Host",
@@ -21,10 +21,51 @@
         "default": 1521,
         "order": 2
       },
-      "sid": {
-        "title": "SID (Oracle System Identifier)",
-        "type": "string",
-        "order": 3
+      "connection_data": {
+        "title": "Connect by",
+        "type": "object",
+        "description": "The encryption method with is used when communicating with the database.",
+        "order": 3,
+        "oneOf": [
+          {
+            "title": "Service name",
+            "description": "Data transfer will not be encrypted.",
+            "required": [
+              "service_name"
+            ],
+            "properties": {
+              "connection_type": {
+                "type": "string",
+                "const": "service_name",
+                "default": "service_name",
+                "order": 0
+              },
+              "service_name": {
+                "type": "string",
+                "order": 1
+              }
+            }
+          },
+          {
+            "title": "System ID (SID)",
+            "description": "SID (Oracle System Identifier)",
+            "required": [
+              "sid"
+            ],
+            "properties": {
+              "connection_type": {
+                "type": "string",
+                "const": "sid",
+                "default": "sid",
+                "order": 0
+              },
+              "sid": {
+                "type": "string",
+                "order": 1
+              }
+            }
+          }
+        ]
       },
       "username": {
         "title": "User",

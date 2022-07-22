@@ -70,12 +70,19 @@ public class OracleSource extends AbstractJdbcSource<JDBCType> implements Source
     final Protocol protocol = config.has(JdbcUtils.ENCRYPTION_KEY)
         ? obtainConnectionProtocol(config.get(JdbcUtils.ENCRYPTION_KEY), additionalParameters)
         : Protocol.TCP;
-    final String connectionString = String.format(
-        "jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=%s)(HOST=%s)(PORT=%s))(CONNECT_DATA=(SID=%s)))",
-        protocol,
-        config.get(JdbcUtils.HOST_KEY).asText(),
-        config.get(JdbcUtils.PORT_KEY).asText(),
-        config.get("sid").asText());
+    String connectionString;
+    if (config.has("connection_data")) {
+      JsonNode connectionData = config.get("connection_data");
+      final String connectionType = connectionData.has("connection_type") ? connectionData.get("connection_type").asText()
+          : "Unrecognized";
+      connectionString = switch (connectionType) {
+        case "service_name" -> buildConnectionString(config, protocol.toString(), "SERVICE_NAME", config.get("connection_data").get("service_name").asText());
+        case "sid" -> buildConnectionString(config, protocol.toString(), "SID", config.get("connection_data").get("sid").asText());
+        default -> throw new IllegalArgumentException("Unrecognized connection type: " + connectionType);
+      };
+    } else {
+      connectionString = buildConnectionString(config, protocol.toString(), "SID", config.get("sid").asText());
+    }
 
     final ImmutableMap.Builder<Object, Object> configBuilder = ImmutableMap.builder()
         .put(JdbcUtils.USERNAME_KEY, config.get(JdbcUtils.USERNAME_KEY).asText())
@@ -189,4 +196,13 @@ public class OracleSource extends AbstractJdbcSource<JDBCType> implements Source
     LOGGER.info("completed source: {}", OracleSource.class);
   }
 
+  private String buildConnectionString(JsonNode config, String protocol, String connectionTypeName, String connectionTypeValue) {
+    return String.format(
+        "jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=%s)(HOST=%s)(PORT=%s))(CONNECT_DATA=(%s=%s)))",
+        protocol,
+        config.get(JdbcUtils.HOST_KEY).asText(),
+        config.get(JdbcUtils.PORT_KEY).asText(),
+        connectionTypeName,
+        connectionTypeValue);
+  }
 }
