@@ -2,8 +2,8 @@
 
 This is the repository for the Gong source connector, written in Python.
 Current fields:
-calls -> incremental by _airbyte_emitted_at fileds as curser
-calls_transcript ->  incremental by _airbyte_emitted_at fileds as curser
+calls -> incremental by _airbyte_emitted_at fileds as curser \n
+calls_transcript ->  incremental by _airbyte_emitted_at fileds as curser \n
 users -> fully synced overwrite
 
 
