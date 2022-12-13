@@ -1,6 +1,6 @@
 # Gong Source
 
-This is the repository for the Gong source connector, written in Python.
+This is the repository for the Gong source connector, written in Python.  <br />
 Current fields: <br />
 calls -> incremental by _airbyte_emitted_at fileds as curser <br />
 calls_transcript ->  incremental by _airbyte_emitted_at fileds as curser <br />
